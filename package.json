@@ -1,0 +1,21 @@
+{
+  "name": "bot-atendimento",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/app.js"
+  },
+  "author": "Alex",
+  "license": "ISC",
+  "dependencies": {
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.22.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.46.0",
+    "prettier": "3.0.1"
+  }
+}
