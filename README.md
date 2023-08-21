@@ -34,8 +34,8 @@ Quando o bot notificar um atendente manual, ele fixará o contato do cliente que
 
 Caso tenha alguma dúvida ou precise de suporte, sinta-se à vontade para entrar em contato conosco:
 
-- Email: seuemail@example.com
-- Telefone: (XX) XXXX-XXXX
+- Instagram: https://www.instagram.com/sr_all3x/ 
+- Telefone: (63) 99208-4934 
 
 ### Contribuições
 
