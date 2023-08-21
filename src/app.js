@@ -1,7 +1,7 @@
 const { Client, LocalAuth, MessageMedia } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
-const { notificarAtendente } = require("../utils/notificarAtendente");
-const { formatNumber } = require("../utils/formatNumber");
+const { notificarAtendentes } = require("../utils/notificarAtendente");
+
 
 const client = new Client({
   authStrategy: new LocalAuth({ clientId: "lavanderia" }),
@@ -17,21 +17,14 @@ const Steps = {
   STEP_THREE: 3,
 };
 
-// numero de quem vai ser notificado
-
-// jeffeson
-const number = "554195354439";
-// const number2 = "5541985243845"
-// const number = "5563992084934";
-
-const numberFormated = formatNumber(number);
-
 const StepMessages = {
   [Steps.GREETING]:
     "Oie, tudo bem? Eu vim pelo site, e estou procurando um serviço para os meus calçados. Vocês podem me fornecer mais informações? Agradeço desde já!",
   [Steps.STEP_ONE]:
+    "*Sr. Trato* :\n" +
     "Seja bem-vindo à Trato Lavanderia de Calçados! Eu sou o Sr. Trato, e vou auxiliá-lo. Qual o seu nome, por favor?",
   [Steps.STEP_TWO]:
+    "*Sr. Trato* :\n" +
     `Ótimo {clientName} Escolhe um número de acordo com a sua necessidade.\n` +
     `1️⃣ – Quero ver os serviços de lavanderia \n` +
     `2️⃣ – Quero fazer um orçamento\n` +
@@ -39,6 +32,7 @@ const StepMessages = {
   [Steps.STEP_THREE]:
     "Excelente! Qual é o seu endereço para que possamos providenciar a coleta?",
   [Steps.STEP_INSTRUCTION]:
+    "*Sr. Trato* :\n" +
     `1️⃣– Quero ver os serviços de lavanderia \n` +
     `2️⃣ – Quero fazer um orçamento\n` +
     `3️⃣ – Quero enviar o meu calçado.`,
@@ -56,7 +50,6 @@ client.on("ready", () => {
 
 client.on("message", async (msg) => {
   const chat = await msg.getChat();
-  console.log(chat.pinned);
 
   if (msg.fromMe || chat.isGroup || !chat.lastMessage || chat.pinned) {
     return;
@@ -71,11 +64,8 @@ client.on("message", async (msg) => {
 async function HandleProcess(msg, chat, userState) {
   const user = msg.from;
   const respostaUsuario = msg.body; // Obtenha a resposta do usuário
-  const lastMessage = chat.lastMessage;
-  const clientName =
-    lastMessage && lastMessage._data && lastMessage._data.notifyName
-      ? lastMessage._data.notifyName
-      : "Cliente";
+  const contact = await chat.getContact()
+  const clientName = contact.pushname
 
   switch (userState) {
     case Steps.GREETING:
@@ -120,7 +110,7 @@ async function HandleProcess(msg, chat, userState) {
           "Em breve, um de nossos atendentes entrará em contato com você. Por favor, aguarde.",
         );
 
-        notificarAtendente(numberFormated, client, clientName);
+        notificarAtendentes(client, clientName);
 
         // fixar o chat no topo com pin
         await client.pinChat(user);
@@ -130,7 +120,7 @@ async function HandleProcess(msg, chat, userState) {
           user,
           "Em breve, um de nossos atendentes entrará em contato com você. Por favor, aguarde.",
         );
-        notificarAtendente(numberFormated, client, clientName);
+        notificarAtendentes(client, clientName);
 
         // fixar o chat no topo com pin
         await client.pinChat(user);
