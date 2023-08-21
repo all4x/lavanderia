@@ -7,7 +7,6 @@ const client = new Client({
   authStrategy: new LocalAuth({ clientId: "lavanderia" }),
   puppeteer: {
     args: ["--no-sandbox"],
-    executablePath: "/usr/bin/google-chrome",
   },
 });
 
@@ -19,8 +18,11 @@ const Steps = {
 };
 
 // numero de quem vai ser notificado
-// const number = "554195354439";
-const number = "5563992084934";
+
+// jeffeson
+const number = "554195354439";
+// const number2 = "5541985243845"
+// const number = "5563992084934";
 
 const numberFormated = formatNumber(number);
 
@@ -31,11 +33,15 @@ const StepMessages = {
     "Seja bem-vindo à Trato Lavanderia de Calçados! Eu sou o Sr. Trato, e vou auxiliá-lo. Qual o seu nome, por favor?",
   [Steps.STEP_TWO]:
     `Ótimo {clientName} Escolhe um número de acordo com a sua necessidade.\n` +
-    `[ 1 ] – Quero entender melhor os serviços de lavanderia \n` +
-    `[ 2 ] – Quero fazer um orçamento\n` +
-    "[ 3 ] – Quero enviar o meu calçado para lavar, como faço?",
+    `1️⃣ – Quero ver os serviços de lavanderia \n` +
+    `2️⃣ – Quero fazer um orçamento\n` +
+    "3️⃣ – Quero enviar o meu calçado.",
   [Steps.STEP_THREE]:
     "Excelente! Qual é o seu endereço para que possamos providenciar a coleta?",
+  [Steps.STEP_INSTRUCTION]:
+    `1️⃣– Quero ver os serviços de lavanderia \n` +
+    `2️⃣ – Quero fazer um orçamento\n` +
+    `3️⃣ – Quero enviar o meu calçado.`,
 };
 
 const userStates = new Map();
@@ -50,13 +56,13 @@ client.on("ready", () => {
 
 client.on("message", async (msg) => {
   const chat = await msg.getChat();
+  console.log(chat.pinned);
 
-  if (msg.fromMe || chat.isGroup || !chat.lastMessage) {
+  if (msg.fromMe || chat.isGroup || !chat.lastMessage || chat.pinned) {
     return;
   }
 
   const user = msg.from;
-
   let userState = userStates.get(user) || Steps.GREETING;
 
   HandleProcess(msg, chat, userState);
@@ -93,32 +99,41 @@ async function HandleProcess(msg, chat, userState) {
       // Processar a escolha do usuário
       if (respostaUsuario === "1") {
         // O usuário quer saber sobre serviços
-        client.sendMessage(msg.from, "Veja Mais Sobre nossos serviços👇");
+        client.sendMessage(user, "Veja Mais Sobre nossos serviços👇");
         const media = await MessageMedia.fromUrl(
           "https://raw.githubusercontent.com/all4x/lavanderia/main/trato.png",
         );
-        await client.sendMessage(msg.from, media);
-        msg.reply(`Saiba mais nesse video!` + `: linkdovideo`);
+        await client.sendMessage(user, media);
+        // client.sendMessage(user, `Saiba mais nesse video!` + `: linkdovideo`);
 
-        // Avançar para a próxima etapa
-        userStates.set(user, Steps.STEP_THREE);
-        client.sendMessage(user, StepMessages[Steps.STEP_THREE]);
+        setTimeout(() => {
+          client.sendMessage(user, StepMessages[Steps.STEP_INSTRUCTION]);
+        }, 3000);
+
+        // userStates.set(user, Steps.);
+        // client.sendMessage(user, StepMessages[Steps.STEP_THREE]);
       } else if (respostaUsuario === "2") {
-        // O usuário quer fazer uma consulta
+        // O usuário quer fazer uma consulta de orçamento
 
         client.sendMessage(
-          msg.from,
-          "Veja Mais Sobre como fazer um orçamento👇",
+          user,
+          "Em breve, um de nossos atendentes entrará em contato com você. Por favor, aguarde.",
         );
-      } else if (respostaUsuario === "3") {
-        // O usuário quer enviar sapatos para limpeza
 
+        notificarAtendente(numberFormated, client, clientName);
+
+        // fixar o chat no topo com pin
+        await client.pinChat(user);
+      } else if (respostaUsuario === "3") {
+        // o usuario quer enviar o tenis
         await client.sendMessage(
-          msg.from,
+          user,
           "Em breve, um de nossos atendentes entrará em contato com você. Por favor, aguarde.",
         );
         notificarAtendente(numberFormated, client, clientName);
-        // Lidar de acordo e avançar, se necessário
+
+        // fixar o chat no topo com pin
+        await client.pinChat(user);
       } else {
         // Escolha inválida, pedir novamente ou fornecer orientação
         client.sendMessage(
