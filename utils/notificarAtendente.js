@@ -3,7 +3,7 @@ const { formatNumber } = require("./formatNumber");
 const numbersToNotify = [
   "554195354439", // Jefferson
   "5541985243845", // Igor
-  // "5563992084934", // Alex 
+  // "5563992084934", // Alex
   // Adicione outros números aqui
 ];
 
@@ -23,4 +23,3 @@ function notificarAtendentes(client, clientName) {
 }
 
 module.exports = { notificarAtendentes };
-
